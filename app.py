@@ -130,10 +130,10 @@ def buy():
 
     return redirect("/?message=bought")
 
-@app.route("/sell", methods=["POST"])
-@login_required
-def sell():
-    
+# @app.route("/sell", methods=["POST"])
+# @login_required
+# def sell():
+
 
 @app.route("/check", methods=["POST"])
 @login_required
