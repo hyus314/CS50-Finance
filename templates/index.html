@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Your porfolio
+{% endblock %}
+{% block before_main %}
+{% if message == "bought" %}
+<div class="alert alert-primary" role="alert"
+    style="display: flex; flex-direction: row; justify-content: center; margin: 0;">
+    Bought!
+</div>
+{% elif message == "registered"%}
+<div class="alert alert-secondary" role="alert"
+    style="display: flex; flex-direction: row; justify-content: center; margin: 0;">
+    Registered!
+</div>
+{% endif %}
+{% endblock %}
+{% block main %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col" style="text-align: left">Symbol</th>
+            <th scope="col" style="text-align: right">Shares</th>
+            <th scope="col" style="text-align: right">Price</th>
+            <th scope="col" style="text-align: right">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            <td style="text-align: left">{{ row["symbol"] }}</td>
+            <td style="text-align: right">{{ row["shares"] }}</td>
+            <td style="text-align: right">${{ row["price"] }}</td>
+            <td style="text-align: right">${{ row["total"] }}</td>
+        </tr>
+        {% endfor %}
+        <tr style="text-align: right; font-weight: bold">
+            <td></td>
+            <td></td>
+            <td>Cash</td>
+            <td>${{ user_info["cash"] }}</td>
+        </tr>
+        <tr style="text-align: right; font-weight: bold">
+            <td></td>
+            <td></td>
+            <td>TOTAL</td>
+            <td>${{ user_info["total"] }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="div-sell-form">
+    <div class="sell-text-container">
+        <h5 class="display-5">Sell stocks</h5>
+    </div>
+    <form class="sell-form" action="/sell">
+        <div class="form-div">
+            <label for="stocks">Choose a stock to sell:</label>
+            <select name="stocks" id="stocks"></select>
+        </div>
+        <div class="form-div">
+            <label for="shares">Choose shares to sell:</label>
+            <input type="number" id="shares" value="1">
+        </div>
+        <input type="submit" class="btn btn-primary" id="submitSell" value="Sell">
+    </form>
+    <div class="calculations-div">
+        <p class="lead">Calculcations:</p>
+        <p class="lead" style="display: flex; flex-direction: row;"></p>
+        <p class="lead" style="display: flex; flex-direction: row; font-size: 25px;"></p>
+    </div>
+</div>
+
+<script src="../static/index.js"></script>
+
+{% endblock %}

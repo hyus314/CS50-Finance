@@ -1,0 +1,99 @@
+/* Size for brand */
+nav .navbar-brand
+{
+    font-size: xx-large;
+}
+
+
+
+/* Colors for brand */
+nav .navbar-brand .blue
+{
+    color: #537fbe;
+}
+nav .navbar-brand .red
+{
+    color: #ea433b;
+}
+nav .navbar-brand .yellow
+{
+    color: #f5b82e;
+}
+nav .navbar-brand .green
+{
+    color: #2e944b;
+}
+
+.sell-form {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.sell-text-container, .calculations-div {
+    background-color: #89B0AE;
+    color: white;
+}
+
+.sell-text-container {
+    padding: 1em 2em;
+}
+
+.calculations-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 2em;
+    padding-inline: 0.5em;
+}
+
+.calculations-div p {
+    text-align: center;
+}
+
+.form-div {
+    display: flex;
+    flex-direction: column;
+}
+
+.div-sell-form {
+    height: 20em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#submitSell {
+    height: 80%;
+    align-self: center;
+    padding-inline: 2em;
+}
+
+.symbol{
+    padding-block: 0;
+    padding-inline: 15px;
+}
+
+.symbol {
+    color: black;
+    font-size: 20px;
+}
+
+.share-price {
+    color: green;
+    font-size: 20px;
+    background-color: white;
+    margin-inline: 1em;
+    padding-inline: 10px;
+}
+
+.total-sum {
+    background-color: white;
+    color: green;
+    font-weight: bold;
+    padding-inline: 12px;
+    font-size: 25px;
+    margin-left: 1em;
+    border: 1px solid black;
+}
