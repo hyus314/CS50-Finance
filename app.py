@@ -6,7 +6,7 @@ from flask import Flask, flash, redirect, render_template, jsonify, request, ses
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import is_whole_integer, apology, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
@@ -64,8 +64,6 @@ def index():
 def stocks():
     rows = db.execute("SELECT name, shares FROM stocks JOIN portfolios on stocks.id = portfolios.stock_id WHERE portfolios.user_id = ?", session["user_id"])
     return json.dumps({"data": rows})
-
-@app.route("/shares")
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -269,8 +267,49 @@ def register():
     return redirect("/?message=registered")
 
 
-@app.route("/sell", methods=["GET", "POST"])
+@app.route("/sell", methods=["POST"])
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    symbol = request.form.get('symbol')
+
+    if not symbol:
+        return apology('symbol cannot be empty')
+
+    if is_whole_integer(request.form.get('shares')) == False:
+        return apology('invalid shares input')
+
+    shares = int(request.form.get('shares'))
+
+    if shares <= 0:
+        return apology('shares cannot be 0 or have negative value')
+
+    rows = db.execute(
+        'SELECT stocks.name, portfolios.shares FROM stocks JOIN portfolios on stocks.id = portfolios.stock_id WHERE portfolios.user_id = ? AND stocks.name = ?',
+         session["user_id"], symbol)
+
+    if len(rows) == 0:
+        return apology('you do not own that stock')
+
+    if shares > rows[0]["shares"]:
+        return apology('you do not own that many shares')
+
+
+    stock = lookup(symbol) # price, symbol
+
+    total = round(shares * stock["price"], 2)
+
+    db.execute('UPDATE users SET cash = cash + ? WHERE id = ?', total, session["user_id"])
+    if shares == rows[0]["shares"]:
+        db.execute('DELETE FROM portfolios WHERE stock_id IN (SELECT id FROM stocks WHERE name = ?) AND user_id = ?',
+                    symbol, session["user_id"])
+    else:
+        db.execute('UPDATE portfolios SET shares = shares - ? WHERE stock_id IN (SELECT stocks.id FROM stocks WHERE stocks.name = ?) AND user_id = ?',
+                    shares, symbol, session["user_id"])
+
+    return redirect("/?message=sold")
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> d14c36d3f1368295b04e349a2e51f0f5a7643fae

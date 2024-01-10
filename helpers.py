@@ -86,3 +86,12 @@ def lookup(symbol):
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
+
+def is_whole_integer(s):
+    if not s:
+        return False
+
+    if s[0] in ('-', '+'):
+        return s[1:].isdigit()
+    else:
+        return s.isdigit()
