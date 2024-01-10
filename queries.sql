@@ -20,7 +20,7 @@ CREATE TABLE portfolios (
 
 -- INSERT INTO portfolios (user_id, stock_id, shares) VALUES (?, ?, ?)
 
--- UPDATE portfolio SET shares = ? WHERE user_id = ? AND stock_id = ?
+-- UPDATE portfolios SET shares = ? WHERE user_id = ? AND stock_id = ?
 
 -- SELECT * FROM stocks
 -- JOIN portfolios on stocks.id = portfolios.stock_id
@@ -31,3 +31,15 @@ CREATE TABLE portfolios (
 -- SELECT name FROM stocks
 -- JOIN portfolios on stocks.id = portfolios.stock_id
 -- WHERE portfolios.user_id = ?
+
+-- SELECT stocks.name, portfolios.shares FROM stocks
+-- JOIN portfolios on stocks.id = portfolios.stock_id
+-- WHERE portfolios.user_id = ? AND stocks.name = ?
+
+-- SELECT id FROM stocks WHERE name = ?
+
+-- UPDATE users SET cash = cash + ? WHERE id = ?
+
+-- UPDATE portfolios JOIN stocks ON portfolios.stock_id = stocks.id SET shares = shares - ? WHERE stocks.id = ? AND portfolios.user_id = ?
+
+-- DELETE FROM portfolios JOIN stocks ON portfolios.stock_id = stocks.id WHERE stocks.name = ? AND portfolios.user_id = ?
