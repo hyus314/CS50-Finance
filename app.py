@@ -41,9 +41,9 @@ def index():
         "SELECT name, shares FROM stocks JOIN portfolios on stocks.id = portfolios.stock_id WHERE portfolios.user_id = ?", session["user_id"]
         )
     user_rows = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
-    data = []
 
-    user_info = {"cash": int(user_rows[0]["cash"]), "total": float(user_rows[0]["cash"])}
+    data = []
+    user_info = {"cash": float(user_rows[0]["cash"]), "total": float(user_rows[0]["cash"])}
 
     for row in rows:
         stock = lookup(row["name"])
@@ -56,6 +56,7 @@ def index():
     user_info["cash"] = format(user_info["cash"], '.2f')
     user_info["total"] = format(user_info["total"], '.2f')
     return render_template('index.html', message=request.args.get('message'), data=data, user_info=user_info)
+
 
 
 @app.route("/stocks", methods=["GET"])

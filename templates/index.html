@@ -14,6 +14,11 @@ Your porfolio
     style="display: flex; flex-direction: row; justify-content: center; margin: 0;">
     Registered!
 </div>
+{% elif message == "sold"%}
+<div class="alert alert-success" role="alert"
+    style="display: flex; flex-direction: row; justify-content: center; margin: 0;">
+    Sold!
+</div>
 {% endif %}
 {% endblock %}
 {% block main %}
@@ -54,14 +59,14 @@ Your porfolio
     <div class="sell-text-container">
         <h5 class="display-5">Sell stocks</h5>
     </div>
-    <form class="sell-form" action="/sell">
+    <form class="sell-form" action="/sell" method="post">
         <div class="form-div">
             <label for="stocks">Choose a stock to sell:</label>
-            <select name="stocks" id="stocks"></select>
+            <select name="symbol" id="stocks"></select>
         </div>
         <div class="form-div">
             <label for="shares">Choose shares to sell:</label>
-            <input type="number" id="shares" value="1">
+            <input name="shares" type="number" id="shares" value="1">
         </div>
         <input type="submit" class="btn btn-primary" id="submitSell" value="Sell">
     </form>
