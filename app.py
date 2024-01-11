@@ -10,8 +10,9 @@ from helpers import is_whole_integer, apology, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
+app.debug = True
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
 # Custom filter
 app.jinja_env.filters["usd"] = usd
 
@@ -106,10 +107,15 @@ def buy():
         # if otherwise, we still do not know if the user has that portfolio with the stock in the database, so we check again
 
         stock_rows = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])
-        stock_id = stock_rows[0]['id']
+        stock_id = 0
+
         portfolio_rows = 0
+            
         if len(stock_rows) == 1:
+            stock_id = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])[0]['id']
             portfolio_rows = db.execute("SELECT COUNT(*) FROM portfolios WHERE user_id = ? AND stock_id = ?", session["user_id"], stock_id)[0]['COUNT(*)']
+            breakpoint()
+            stock_id = stock_rows[0]['id']
 
         if portfolio_rows == 0:
 
@@ -120,17 +126,20 @@ def buy():
                 db.execute("INSERT INTO stocks (name) VALUES (?)", stock['symbol'])
 
             # Here we are sure the stock now exists.
-            stock_id_new = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])[0]['id']
-            db.execute("INSERT INTO portfolios (user_id, stock_id, shares) VALUES (?, ?, ?)", session["user_id"], stock_id_new, shares)
+            stock_id = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])[0]['id']
+            db.execute("INSERT INTO portfolios (user_id, stock_id, shares) VALUES (?, ?, ?)", session["user_id"], stock_id, shares)
 
             # after these lines of code are executed, we have reduced the user's cash and (maybe) we have registered new stock in the database, and created that portfolio
         else:
             # here we know that the stock exists and the user has a portfolio with that stock, so we will just increase the shares and reduce the user's cash
+            breakpoint()
             db.execute("UPDATE portfolios SET shares = shares + ? WHERE user_id = ? AND stock_id = ?", shares, session["user_id"], stock_id)
 
 
     db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", transaction_sum, session["user_id"])
+    breakpoint()
     db.execute(
+        
         "INSERT INTO history (user_id, stock_id, transaction_type, shares, share_price, date, total) VALUES(?, ?, 'BUY', ?, ?, CURRENT_TIMESTAMP, ?)",
          session["user_id"], stock_id, shares, stock['price'], round(stock['price'] * shares, 2))
     return redirect("/?message=bought")
