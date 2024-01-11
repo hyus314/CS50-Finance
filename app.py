@@ -335,10 +335,3 @@ def sell():
          session["user_id"], stock_id, shares, stock['price'], total)
 
     return redirect("/?message=sold")
-
-
-
-<<<<<<< HEAD
-=======
-
->>>>>>> d14c36d3f1368295b04e349a2e51f0f5a7643fae

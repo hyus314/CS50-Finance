@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr class="table-primary" style="font-weight: bold">
+            <th>Symbol</th>
+            <th>Shares</th>
+            <th>Date</th>
+            <th style="width: 13%">Price per Share</th>
+            <th style="width: 20%">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in bought %}
+        <tr>
+            <th scope="row">{{ row['symbol'] }}</th>
+            <td>{{ row['shares'] }}</td>
+            <td>{{ row['date'] }}</td>
+            <td>${{ row['price'] }}</td>
+            <td>${{ row['total'] }}</td>
+        </tr>
+     {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr class="table-success" style="font-weight: bold">
+        <th>Symbol</th>
+        <th>Shares</th>
+        <th>Date</th>
+        <th style="width: 13%">Price per Share</th>
+        <th style="width: 20%">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in sold %}
+        <tr>
+            <th scope="row">{{ row['symbol'] }}</th>
+            <td>{{ row['shares'] }}</td>
+            <td>{{ row['date'] }}</td>
+            <td>${{ row['price'] }}</td>
+            <td>${{ row['total'] }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
