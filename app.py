@@ -58,7 +58,6 @@ def index():
     return render_template('index.html', message=request.args.get('message'), data=data, user_info=user_info)
 
 
-
 @app.route("/stocks", methods=["GET"])
 @login_required
 def stocks():
@@ -73,6 +72,10 @@ def buy():
 
     # get form input
     symbol = request.form.get("symbol")
+
+    if is_whole_integer(request.form.get('shares')) == False:
+        return apology('invalid shares input')
+
     shares = int(request.form.get("shares"))
 
     # get stock from lookup
@@ -103,9 +106,10 @@ def buy():
         # if otherwise, we still do not know if the user has that portfolio with the stock in the database, so we check again
 
         stock_rows = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])
+        stock_id = stock_rows[0]['id']
         portfolio_rows = 0
         if len(stock_rows) == 1:
-            portfolio_rows = db.execute("SELECT COUNT(*) FROM portfolios WHERE user_id = ? AND stock_id = ?", session["user_id"], stock_rows[0]['id'])[0]['COUNT(*)']
+            portfolio_rows = db.execute("SELECT COUNT(*) FROM portfolios WHERE user_id = ? AND stock_id = ?", session["user_id"], stock_id)[0]['COUNT(*)']
 
         if portfolio_rows == 0:
 
@@ -116,23 +120,20 @@ def buy():
                 db.execute("INSERT INTO stocks (name) VALUES (?)", stock['symbol'])
 
             # Here we are sure the stock now exists.
-            stock_id = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])[0]['id']
-            db.execute("INSERT INTO portfolios (user_id, stock_id, shares) VALUES (?, ?, ?)", session["user_id"], stock_id, shares)
+            stock_id_new = db.execute("SELECT id FROM stocks WHERE name = ?", stock['symbol'])[0]['id']
+            db.execute("INSERT INTO portfolios (user_id, stock_id, shares) VALUES (?, ?, ?)", session["user_id"], stock_id_new, shares)
 
             # after these lines of code are executed, we have reduced the user's cash and (maybe) we have registered new stock in the database, and created that portfolio
         else:
             # here we know that the stock exists and the user has a portfolio with that stock, so we will just increase the shares and reduce the user's cash
-            db.execute("UPDATE portfolios SET shares = shares + ? WHERE user_id = ? AND stock_id = ?", shares, session["user_id"], stock_rows[0]["id"])
+            db.execute("UPDATE portfolios SET shares = shares + ? WHERE user_id = ? AND stock_id = ?", shares, session["user_id"], stock_id)
 
 
     db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", transaction_sum, session["user_id"])
-
+    db.execute(
+        "INSERT INTO history (user_id, stock_id, transaction_type, shares, share_price, date, total) VALUES(?, ?, 'BUY', ?, ?, CURRENT_TIMESTAMP, ?)",
+         session["user_id"], stock_id, shares, stock['price'], round(stock['price'] * shares, 2))
     return redirect("/?message=bought")
-
-# @app.route("/sell", methods=["POST"])
-# @login_required
-# def sell():
-
 
 @app.route("/check", methods=["POST"])
 @login_required
@@ -150,7 +151,22 @@ def check():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    rows = db.execute(
+        "SELECT stocks.name AS symbol, history.transaction_type AS type, history.shares, history.date, history.share_price AS price, history.total FROM stocks  JOIN history ON stocks.id = history.stock_id JOIN users ON history.user_id = users.id WHERE users.id = ?",
+        session['user_id']
+    )
+
+    bought = []
+    sold = []
+
+    for row in rows:
+        print(row)
+        if row['type'] == 'BUY':
+            bought.append(row)
+        elif row['type'] == 'SELL':
+            sold.append(row)
+
+    return render_template("history.html", bought=bought, sold=sold)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -231,7 +247,6 @@ def quote_json():
         return None
     return json.dumps({"stock": stock})
 
-
 @app.route("/error")
 @login_required
 def error(message):
@@ -276,6 +291,13 @@ def sell():
     if not symbol:
         return apology('symbol cannot be empty')
 
+    stock_rows = db.execute('SELECT id FROM stocks WHERE name = ?', symbol)
+
+    if len(stock_rows) == 0:
+        return apology('stock does not exist')
+
+    stock_id = stock_rows[0]['id']
+
     if is_whole_integer(request.form.get('shares')) == False:
         return apology('invalid shares input')
 
@@ -299,15 +321,22 @@ def sell():
 
     total = round(shares * stock["price"], 2)
 
-    db.execute('UPDATE users SET cash = cash + ? WHERE id = ?', total, session["user_id"])
     if shares == rows[0]["shares"]:
-        db.execute('DELETE FROM portfolios WHERE stock_id IN (SELECT id FROM stocks WHERE name = ?) AND user_id = ?',
-                    symbol, session["user_id"])
+        db.execute('DELETE FROM portfolios WHERE stock_id = ? AND user_id = ?',
+                    stock_id, session["user_id"])
     else:
-        db.execute('UPDATE portfolios SET shares = shares - ? WHERE stock_id IN (SELECT stocks.id FROM stocks WHERE stocks.name = ?) AND user_id = ?',
-                    shares, symbol, session["user_id"])
+        db.execute('UPDATE portfolios SET shares = shares - ? WHERE stock_id = ? AND user_id = ?',
+                    shares, stock_id, session["user_id"])
+
+
+    db.execute('UPDATE users SET cash = cash + ? WHERE id = ?', total, session["user_id"])
+    db.execute(
+        "INSERT INTO history (user_id, stock_id, transaction_type, shares, share_price, date, total) VALUES(?, ?, 'SELL', ?, ?, CURRENT_TIMESTAMP, ?)",
+         session["user_id"], stock_id, shares, stock['price'], total)
 
     return redirect("/?message=sold")
+
+
 
 <<<<<<< HEAD
 =======
