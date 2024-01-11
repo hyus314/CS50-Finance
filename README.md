@@ -15,5 +15,5 @@
 
 ## Database:
 - If you clone this repository directly, you will be using `finance.db` with the data that has been loaded when the application was being developed and tested.
-- Once you clone this repository delete the default finance.db.
+- Once you clone this repository delete the default `finance.db`.
 - And run terminal with command `sqlite3 finance.db`. This will create an instance of a new database which you can use on your own machine.
